@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>登入 · Todo List</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="container container--narrow">
+    <header class="header">
+      <h1>登入</h1>
+      <p class="subtitle">登入以管理你的待辦事項</p>
+    </header>
+
+    <% if (error) { %>
+      <p class="alert"><%= error %></p>
+    <% } %>
+
+    <form class="auth-form" action="/login" method="POST" autocomplete="off">
+      <label>
+        <span>使用者名稱</span>
+        <input
+          type="text"
+          name="username"
+          value="<%= values.username %>"
+          required
+          autofocus
+          minlength="3"
+          maxlength="32"
+        />
+      </label>
+      <label>
+        <span>密碼</span>
+        <input type="password" name="password" required minlength="6" maxlength="128" />
+      </label>
+      <button type="submit">登入</button>
+    </form>
+
+    <p class="auth-switch">
+      還沒有帳號？<a href="/register">註冊新帳號</a>
+    </p>
+
+    <footer class="footer">
+      <small>使用 Node.js + Express + EJS 建構。</small>
+    </footer>
+  </main>
+</body>
+</html>

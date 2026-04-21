@@ -9,7 +9,17 @@
 <body>
   <main class="container">
     <header class="header">
-      <h1>Todo List</h1>
+      <div class="header-row">
+        <h1>Todo List</h1>
+        <% if (currentUser) { %>
+          <div class="user-info">
+            <span class="username">👤 <%= currentUser.username %></span>
+            <form action="/logout" method="POST" class="inline">
+              <button type="submit" class="secondary">登出</button>
+            </form>
+          </div>
+        <% } %>
+      </div>
       <p class="subtitle">
         <%= total %> 項任務，<%= remaining %> 項未完成
       </p>
