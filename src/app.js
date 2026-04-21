@@ -4,6 +4,10 @@ const session = require('express-session');
 const methodOverride = require('method-override');
 
 const users = require('./users');
+const repo = require('./repo');
+const { migrateLegacyUsers } = require('./repo/migrate');
+
+migrateLegacyUsers(repo);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -52,13 +56,6 @@ function requireGuest(req, res, next) {
 
 function asyncHandler(fn) {
   return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
-}
-
-const todos = [];
-let nextId = 1;
-
-function findTodo(id, userId) {
-  return todos.find((todo) => todo.id === id && todo.userId === userId);
 }
 
 function redirectBack(req, res, fallback = '/todos') {
@@ -120,7 +117,7 @@ app.post('/logout', (req, res) => {
 
 app.get('/todos', requireAuth, (req, res) => {
   const userId = req.session.userId;
-  const mine = todos.filter((t) => t.userId === userId);
+  const mine = repo.todos.listByUserId(userId);
   const filter = req.query.filter || 'all';
   const filtered = mine.filter((todo) => {
     if (filter === 'active') return !todo.done;
@@ -138,42 +135,23 @@ app.get('/todos', requireAuth, (req, res) => {
 app.post('/todos', requireAuth, (req, res) => {
   const title = (req.body.title || '').trim();
   if (title) {
-    todos.push({
-      id: nextId++,
-      userId: req.session.userId,
-      title,
-      done: false,
-      createdAt: new Date(),
-    });
+    repo.todos.create({ userId: req.session.userId, title });
   }
   res.redirect('/todos');
 });
 
 app.post('/todos/:id/toggle', requireAuth, (req, res) => {
-  const todo = findTodo(Number(req.params.id), req.session.userId);
-  if (todo) {
-    todo.done = !todo.done;
-  }
+  repo.todos.toggle(Number(req.params.id), req.session.userId);
   redirectBack(req, res);
 });
 
 app.delete('/todos/:id', requireAuth, (req, res) => {
-  const id = Number(req.params.id);
-  const userId = req.session.userId;
-  const index = todos.findIndex((t) => t.id === id && t.userId === userId);
-  if (index !== -1) {
-    todos.splice(index, 1);
-  }
+  repo.todos.remove(Number(req.params.id), req.session.userId);
   redirectBack(req, res);
 });
 
 app.post('/todos/clear-completed', requireAuth, (req, res) => {
-  const userId = req.session.userId;
-  for (let i = todos.length - 1; i >= 0; i -= 1) {
-    if (todos[i].userId === userId && todos[i].done) {
-      todos.splice(i, 1);
-    }
-  }
+  repo.todos.clearCompleted(req.session.userId);
   redirectBack(req, res);
 });
 
