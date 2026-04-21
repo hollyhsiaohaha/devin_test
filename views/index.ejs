@@ -16,14 +16,14 @@
     </header>
 
     <form class="add-form" action="/todos" method="POST" autocomplete="off">
-      <input
-        type="text"
+      <textarea
         name="title"
-        placeholder="新增一項待辦事項…"
+        placeholder="新增一項待辦事項…（Enter 換行，按「新增」送出）"
         aria-label="新待辦事項"
         required
+        rows="1"
         autofocus
-      />
+      ></textarea>
       <button type="submit">新增</button>
     </form>
 

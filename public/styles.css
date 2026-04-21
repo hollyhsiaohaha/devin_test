@@ -35,19 +35,24 @@ body {
   display: flex;
   gap: 8px;
   margin-bottom: 20px;
+  align-items: flex-start;
 }
 
-.add-form input[type="text"] {
+.add-form textarea {
   flex: 1;
   padding: 12px 14px;
   border: 1px solid #d1d5db;
   border-radius: 8px;
   font-size: 1rem;
+  font-family: inherit;
   background: #fff;
+  resize: vertical;
+  min-height: 46px;
+  line-height: 1.4;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
-.add-form input[type="text"]:focus {
+.add-form textarea:focus {
   outline: none;
   border-color: #6366f1;
   box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
@@ -120,6 +125,8 @@ button {
 .todo-item .title {
   flex: 1;
   font-size: 1rem;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 .todo-item.done .title {
