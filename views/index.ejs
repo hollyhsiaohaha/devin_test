@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Todo List</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <main class="container">
+    <header class="header">
+      <h1>Todo List</h1>
+      <p class="subtitle">
+        <%= total %> 項任務，<%= remaining %> 項未完成
+      </p>
+    </header>
+
+    <form class="add-form" action="/todos" method="POST" autocomplete="off">
+      <input
+        type="text"
+        name="title"
+        placeholder="新增一項待辦事項…"
+        aria-label="新待辦事項"
+        required
+        autofocus
+      />
+      <button type="submit">新增</button>
+    </form>
+
+    <nav class="filters" aria-label="篩選">
+      <a href="/todos?filter=all" class="<%= filter === 'all' ? 'active' : '' %>">全部</a>
+      <a href="/todos?filter=active" class="<%= filter === 'active' ? 'active' : '' %>">未完成</a>
+      <a href="/todos?filter=completed" class="<%= filter === 'completed' ? 'active' : '' %>">已完成</a>
+    </nav>
+
+    <% if (todos.length === 0) { %>
+      <p class="empty">目前沒有待辦事項 ✨</p>
+    <% } else { %>
+      <ul class="todo-list">
+        <% todos.forEach((todo) => { %>
+          <li class="todo-item <%= todo.done ? 'done' : '' %>">
+            <form action="/todos/<%= todo.id %>/toggle" method="POST" class="inline">
+              <button type="submit" class="toggle" aria-label="切換完成狀態">
+                <%= todo.done ? '☑' : '☐' %>
+              </button>
+            </form>
+            <span class="title"><%= todo.title %></span>
+            <form action="/todos/<%= todo.id %>?_method=DELETE" method="POST" class="inline">
+              <button type="submit" class="delete" aria-label="刪除">✕</button>
+            </form>
+          </li>
+        <% }) %>
+      </ul>
+
+      <form action="/todos/clear-completed" method="POST" class="clear-form">
+        <button type="submit" class="secondary">清除已完成</button>
+      </form>
+    <% } %>
+
+    <footer class="footer">
+      <small>使用 Node.js + Express + EJS 建構，資料儲存於記憶體（重啟後清空）。</small>
+    </footer>
+  </main>
+</body>
+</html>
