@@ -50,6 +50,10 @@ function requireGuest(req, res, next) {
   return next();
 }
 
+function asyncHandler(fn) {
+  return (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next);
+}
+
 const todos = [];
 let nextId = 1;
 
@@ -69,7 +73,7 @@ app.get('/register', requireGuest, (req, res) => {
   res.render('register', { error: null, values: { username: '' } });
 });
 
-app.post('/register', requireGuest, async (req, res) => {
+app.post('/register', requireGuest, asyncHandler(async (req, res) => {
   const username = (req.body.username || '').trim();
   const password = req.body.password || '';
   const { user, error } = await users.createUser(username, password);
@@ -84,13 +88,13 @@ app.post('/register', requireGuest, async (req, res) => {
     req.session.userId = user.id;
     return res.redirect('/todos');
   });
-});
+}));
 
 app.get('/login', requireGuest, (req, res) => {
   res.render('login', { error: null, values: { username: '' } });
 });
 
-app.post('/login', requireGuest, async (req, res) => {
+app.post('/login', requireGuest, asyncHandler(async (req, res) => {
   const username = (req.body.username || '').trim();
   const password = req.body.password || '';
   const user = await users.verifyCredentials(username, password);
@@ -105,7 +109,7 @@ app.post('/login', requireGuest, async (req, res) => {
     req.session.userId = user.id;
     return res.redirect('/todos');
   });
-});
+}));
 
 app.post('/logout', (req, res) => {
   req.session.destroy(() => {

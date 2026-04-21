@@ -61,10 +61,14 @@ function validateRegistration(username, password) {
 async function createUser(username, password) {
   const err = validateRegistration(username, password);
   if (err) return { error: err };
-  if (findByUsername(username)) return { error: '此使用者名稱已被註冊' };
+
+  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
 
   const state = loadAll();
-  const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS);
+  const lower = username.toLowerCase();
+  if (state.users.some((u) => u.username.toLowerCase() === lower)) {
+    return { error: '此使用者名稱已被註冊' };
+  }
   const user = {
     id: state.nextId,
     username,
