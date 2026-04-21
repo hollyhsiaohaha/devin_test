@@ -37,18 +37,25 @@ function migrateLegacyUsers(repo) {
   // SQLite's AUTOINCREMENT bookkeeping is updated automatically when rows are
   // inserted with explicit ids, so we don't need to poke sqlite_sequence.
   const tx = repo._db.transaction((rows) => {
+    let inserted = 0;
     for (const u of rows) {
       if (!u || typeof u.id !== 'number' || !u.username || !u.passwordHash) continue;
       repo.users._importWithId(u.id, u.username, u.passwordHash, u.createdAt || new Date().toISOString());
+      inserted += 1;
     }
+    return inserted;
   });
 
-  tx(legacyUsers);
+  const imported = tx(legacyUsers);
   renameLegacy();
 
+  const skippedCount = legacyUsers.length - imported;
   // eslint-disable-next-line no-console
-  console.log(`[migrate] imported ${legacyUsers.length} user(s) from users.json into DB`);
-  return { migrated: legacyUsers.length, skipped: false };
+  console.log(
+    `[migrate] imported ${imported} user(s) from users.json into DB` +
+      (skippedCount > 0 ? ` (skipped ${skippedCount} malformed record(s))` : '')
+  );
+  return { migrated: imported, skipped: false };
 }
 
 function renameLegacy() {
